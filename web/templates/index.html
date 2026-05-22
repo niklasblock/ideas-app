@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideen-App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💡 Ideen-App</h1>
+            <button id="theme-toggle" class="theme-btn"></button>
+        </div>
+
+        <form class="input-row" action="/add" method="POST">
+            <input type="text" name="text" placeholder="Neue Idee eingeben..." autofocus>
+            <button class="add" type="submit">+</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Idee</th>
+                    <th>Zeit</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if ideas %}
+                    {% for idea in ideas %}
+                    <tr>
+                        <td style="color:#aaa">#{{ idea.id }}</td>
+                        <td>{{ idea.text }}</td>
+                        <td style="color:#aaa">{{ idea.created }}</td>
+                        <td>
+                            <form action="/delete/{{ idea.id }}" method="POST">
+                                <button class="delete" type="submit">Löschen</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="4" class="empty">Noch keine Ideen gespeichert.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
