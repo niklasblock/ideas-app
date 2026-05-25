@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ idea.text }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='detail.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">← Zurück</a>
+            <div style="display:flex; gap:8px;">
+                <button id="theme-toggle" class="theme-btn"></button>
+            </div>
+        </div>
+
+        <h1 style="margin-bottom: 8px;">{{ idea.text }}</h1>
+        <p style="color:#aaa; font-size:12px; margin-bottom: 16px;">{{ idea.created }}</p>
+
+        <div class="editor-actions">
+            <button type="button" id="copy-btn" class="action-btn" title="Kopieren">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+            </button>
+            <a href="/idea/{{ idea.id }}/export/md" class="action-btn" title="Export Markdown">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>.md</span>
+            </a>
+            <button type="button" id="preview-toggle" class="action-btn" title="Vorschau">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>Vorschau</span>
+            </button>
+        </div>
+
+        <div class="editor-container">
+            <form id="editor-form" action="/idea/{{ idea.id }}/save" method="POST" style="flex:1; display:flex; flex-direction:column;">
+                <textarea id="editor" name="content" placeholder="Idee ausarbeiten...">{{ idea.content if idea.content else '' }}</textarea>
+                <button type="submit" class="add" style="font-size:14px; padding: 8px 20px; margin-top:12px; align-self:flex-start;">Speichern</button>
+            </form>
+
+            <div id="preview" class="preview hidden">
+                <div id="preview-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='detail.js') }}"></script>
+</body>
+</html>

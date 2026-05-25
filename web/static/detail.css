@@ -1,0 +1,124 @@
+.back-btn {
+    color: inherit;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.back-btn:hover { opacity: 1; }
+
+.editor-container {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+}
+
+#editor {
+    flex: 1;
+    min-height: 500px;
+    height: 100%;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    width: 100%;
+}
+
+#editor:focus { border-color: #aaa; }
+
+body[data-theme="dark"] #editor {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #f0f0f0;
+}
+
+.preview {
+    flex: 1;
+    min-height: 500px;
+    height: 100%;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-y: auto;
+}
+
+body[data-theme="dark"] .preview {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #f0f0f0;
+}
+
+.preview.hidden { display: none; }
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+#preview-content h1 { font-size: 20px; margin: 16px 0 8px; }
+#preview-content h2 { font-size: 17px; margin: 14px 0 6px; }
+#preview-content h3 { font-size: 15px; margin: 12px 0 4px; }
+#preview-content p { margin-bottom: 10px; }
+#preview-content ul, #preview-content ol { padding-left: 20px; margin-bottom: 10px; }
+#preview-content code {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+body[data-theme="dark"] #preview-content code { background: #333; }
+#preview-content blockquote {
+    border-left: 3px solid #ddd;
+    padding-left: 12px;
+    color: #888;
+    margin: 8px 0;
+}
+
+.theme-btn:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background: #f0f0f0;
+}
+
+body[data-theme="dark"] .action-btn {
+    border-color: #3f3f46;
+}
+
+body[data-theme="dark"] .action-btn:hover {
+    background: #27272a;
+}

@@ -16,6 +16,21 @@ def add_idea(text):
 def list_ideas():
     return load_ideas()
 
+def get_idea(idea_id):
+    ideas = load_ideas()
+    for idea in ideas:
+        if idea["id"] == idea_id:
+            return idea
+    return None
+
+def update_idea(idea_id, content):
+    ideas = load_ideas()
+    for idea in ideas:
+        if idea["id"] == idea_id:
+            idea["content"] = content
+            break
+    save_ideas(ideas)
+
 def delete_idea(idea_id):
     ideas = load_ideas()
     ideas = [i for i in ideas if i["id"] != idea_id]
