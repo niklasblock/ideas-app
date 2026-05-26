@@ -80,6 +80,35 @@ LIGHT = """
     QPushButton#delete_btn:hover {
         background-color: #fff0f0;
     }
+    QPushButton#back_btn {
+        background: transparent;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 6px 12px;
+        color: #1a1a1a;
+        font-size: 13px;
+    }
+    QPushButton#back_btn:hover { background: #f0f0f0; }
+
+    QPushButton#action_btn {
+        background: transparent;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 6px 12px;
+        color: #1a1a1a;
+        font-size: 13px;
+    }
+    QPushButton#action_btn:hover { background: #f0f0f0; }
+
+    QLabel#detail_title {
+        font-size: 22px;
+        font-weight: 500;
+    }
+
+    QLabel#detail_date {
+        font-size: 12px;
+        color: #aaa;
+    }
 """
 
 DARK = """
@@ -162,5 +191,35 @@ DARK = """
     }
     QPushButton#delete_btn:hover {
         background-color: #2a1818;
+    }
+
+    QPushButton#back_btn {
+        background: transparent;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        padding: 6px 12px;
+        color: #f5f5f5;
+        font-size: 13px;
+    }
+    QPushButton#back_btn:hover { background: #27272a; }
+
+    QPushButton#action_btn {
+        background: transparent;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        padding: 6px 12px;
+        color: #f5f5f5;
+        font-size: 13px;
+    }
+    QPushButton#action_btn:hover { background: #27272a; }
+
+    QLabel#detail_title {
+        font-size: 22px;
+        font-weight: 500;
+    }
+
+    QLabel#detail_date {
+        font-size: 12px;
+        color: #666;
     }
 """
