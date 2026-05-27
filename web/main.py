@@ -1,6 +1,6 @@
 # web/main.py
 from flask import Flask, render_template, request, redirect, url_for, Response
-from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea
+from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea, update_idea_meta
 
 app = Flask(__name__, template_folder="templates")
 
@@ -43,6 +43,17 @@ def export_md(idea_id):
 def delete(idea_id):
     delete_idea(idea_id)
     return redirect(url_for("index"))
+
+@app.route("/idea/<int:idea_id>/meta", methods=["POST"])
+def save_meta(idea_id):
+    tags = [t.strip() for t in request.form.get("tags", "").split(",") if t.strip()]
+    context = {
+        "status": request.form.get("status"),
+        "importance": int(request.form.get("importance")),
+        "energy": request.form.get("energy")
+    }
+    update_idea_meta(idea_id, tags=tags, context=context)
+    return redirect(url_for("detail", idea_id=idea_id))
 
 def main():
     app.run(debug=True)

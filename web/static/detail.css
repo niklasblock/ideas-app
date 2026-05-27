@@ -122,3 +122,58 @@ body[data-theme="dark"] .action-btn {
 body[data-theme="dark"] .action-btn:hover {
     background: #27272a;
 }
+
+.meta-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+body[data-theme="dark"] .meta-section {
+    border-color: #3f3f46;
+    background: #27272a;
+}
+
+.meta-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.meta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.meta-row label {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+}
+
+.meta-row select,
+.meta-row input[type="text"] {
+    padding: 6px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f9f9f9;
+    color: #1a1a1a;
+    font-size: 13px;
+    outline: none;
+}
+
+body[data-theme="dark"] .meta-row select,
+body[data-theme="dark"] .meta-row input[type="text"] {
+    background: #18181b;
+    border-color: #3f3f46;
+    color: #f0f0f0;
+}
+
+.meta-row select:focus,
+.meta-row input[type="text"]:focus {
+    border-color: #aaa;
+}
