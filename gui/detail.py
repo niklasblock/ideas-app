@@ -8,13 +8,15 @@ from PyQt6.QtCore import Qt, QTimer
 from core.ideas import get_idea, update_idea
 
 class DetailWindow(QWidget):
-    def __init__(self, idea_id, dark_mode=False, on_back=None):
+    def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
         super().__init__()
         self.idea_id = idea_id
         self.dark_mode = dark_mode
         self.preview_visible = False
         self.on_back = on_back
         self.idea = get_idea(idea_id)
+        self.on_theme_change = on_theme_change
+
 
         self.setWindowTitle(self.idea['text'])
         self.setMinimumSize(900, 650)
@@ -28,8 +30,12 @@ class DetailWindow(QWidget):
         back_btn = QPushButton("← Zurück")
         back_btn.setObjectName("back_btn")
         back_btn.clicked.connect(self.on_back if on_back else self.close)
+        self.theme_btn = QPushButton("☀" if self.dark_mode else "☾")
+        self.theme_btn.setObjectName("theme_btn")
+        self.theme_btn.clicked.connect(self.toggle_theme)
         header.addWidget(back_btn)
         header.addStretch()
+        header.addWidget(self.theme_btn)
         layout.addLayout(header)
 
         # Titel + Datum
@@ -78,13 +84,15 @@ class DetailWindow(QWidget):
         self.apply_theme()
 
     def apply_theme(self):
+        import PyQt6.QtWidgets as w
         from gui.styles import DARK, LIGHT
-        self.setStyleSheet(DARK if self.dark_mode else LIGHT)
+        w.QApplication.instance().setStyleSheet(DARK if self.dark_mode else LIGHT)
+        self.theme_btn.setText("☀" if self.dark_mode else "☾")
 
     def toggle_preview(self):
         self.preview_visible = not self.preview_visible
         self.preview.setVisible(self.preview_visible)
-        self.preview_btn.setText("◎ Vorschau aus" if self.preview_visible else "◎ Vorschau")
+        self.preview_btn.setText("◉ Vorschau aus" if self.preview_visible else "◎ Vorschau")
         if self.preview_visible:
             self.update_preview()
 
@@ -104,3 +112,9 @@ class DetailWindow(QWidget):
         QApplication.clipboard().setText(self.editor.toPlainText())
         self.copy_btn.setText("✓ Kopiert!")
         QTimer.singleShot(3000, lambda: self.copy_btn.setText("⎘ Kopieren"))
+
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        self.theme_btn.setText("☀" if self.dark_mode else "☾")
+        if self.on_theme_change:
+            self.on_theme_change(self.dark_mode)

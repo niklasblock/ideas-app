@@ -5,7 +5,7 @@ from core.storage import load_ideas, save_ideas
 def add_idea(text):
     ideas = load_ideas()
     idea = {
-        "id": len(ideas) + 1,
+        "id": max((i["id"] for i in ideas), default=0) + 1, 
         "text": text,
         "created": datetime.now().strftime("%Y-%m-%d %H:%M")
     }

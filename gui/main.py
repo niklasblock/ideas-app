@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, QLineEdit, QPushButton, QTableWidget,
     QTableWidgetItem, QHeaderView, QStackedWidget
 )
+from PyQt6.QtCore import Qt
 from gui.styles import LIGHT, DARK
 
 class MainWindow(QMainWindow):
@@ -62,7 +63,7 @@ class MainWindow(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        self.table.setColumnWidth(3, 90)
+        self.table.setColumnWidth(3, 110)
         self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -78,9 +79,18 @@ class MainWindow(QMainWindow):
         if self.stack.count() > 1:
             self.stack.removeWidget(self.stack.widget(1))
 
-        self.detail_page = DetailWindow(idea_id, dark_mode=self.dark_mode, on_back=self.show_list)
+        self.detail_page = DetailWindow(
+            idea_id,
+            dark_mode=self.dark_mode,
+            on_back=self.show_list,
+            on_theme_change=self.set_theme
+        )
         self.stack.addWidget(self.detail_page)
         self.stack.setCurrentIndex(1)
+
+    def set_theme(self, dark_mode):
+        self.dark_mode = dark_mode
+        self.apply_theme()
 
     def show_list(self):
         self.stack.setCurrentIndex(0)
@@ -103,7 +113,7 @@ class MainWindow(QMainWindow):
     def _add_row(self, idea):
         row = self.table.rowCount()
         self.table.insertRow(row)
-        self.table.setRowHeight(row, 40)
+        self.table.setRowHeight(row, 54)
         self.table.setItem(row, 0, QTableWidgetItem(f"#{idea['id']}"))
         self.table.setItem(row, 1, QTableWidgetItem(idea['text']))
         self.table.setItem(row, 2, QTableWidgetItem(idea['created']))
@@ -114,7 +124,14 @@ class MainWindow(QMainWindow):
             "QPushButton:hover { background-color: #fff0f0; }"
         )
         delete_btn.clicked.connect(lambda _, id=idea['id']: self.delete_idea(id))
-        self.table.setCellWidget(row, 3, delete_btn)
+        
+        container = QWidget()
+        container.setStyleSheet("background: transparent;")
+        c_layout = QHBoxLayout(container)
+        c_layout.setContentsMargins(4, 0, 4, 0)
+        c_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        c_layout.addWidget(delete_btn)
+        self.table.setCellWidget(row, 3, container)
 
     def add_idea(self):
         from core.ideas import add_idea
