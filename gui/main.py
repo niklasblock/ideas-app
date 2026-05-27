@@ -115,8 +115,8 @@ class MainWindow(QMainWindow):
         self.table.insertRow(row)
         self.table.setRowHeight(row, 54)
         self.table.setItem(row, 0, QTableWidgetItem(f"#{idea['id']}"))
-        self.table.setItem(row, 1, QTableWidgetItem(idea['text']))
-        self.table.setItem(row, 2, QTableWidgetItem(idea['created']))
+        self.table.setItem(row, 1, QTableWidgetItem(idea['title']))
+        self.table.setItem(row, 2, QTableWidgetItem(idea['time']['created']))
         delete_btn = QPushButton("Löschen")
         delete_btn.setFixedHeight(28)
         delete_btn.setStyleSheet(

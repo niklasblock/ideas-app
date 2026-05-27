@@ -10,7 +10,7 @@ from core.ideas import get_idea, update_idea
 class DetailWindow(QWidget):
     def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
         super().__init__()
-        self.idea_id = idea_id
+        self.idea_id = get_idea(idea_id)
         self.dark_mode = dark_mode
         self.preview_visible = False
         self.on_back = on_back
@@ -18,7 +18,7 @@ class DetailWindow(QWidget):
         self.on_theme_change = on_theme_change
 
 
-        self.setWindowTitle(self.idea['text'])
+        self.setWindowTitle(self.idea['title'])
         self.setMinimumSize(900, 650)
 
         layout = QVBoxLayout(self)
@@ -39,11 +39,11 @@ class DetailWindow(QWidget):
         layout.addLayout(header)
 
         # Titel + Datum
-        title = QLabel(self.idea['text'])
+        title = QLabel(self.idea['title'])
         title.setObjectName("detail_title")
         layout.addWidget(title)
 
-        date = QLabel(self.idea['created'])
+        date = QLabel(self.idea['time']['created'])
         date.setObjectName("detail_date")
         layout.addWidget(date)
 

@@ -32,7 +32,7 @@ def save(idea_id):
 @app.route("/idea/<int:idea_id>/export/md")
 def export_md(idea_id):
     idea = get_idea(idea_id)
-    content = f"# {idea['text']}\n\n{idea.get('content', '')}"
+    content = f"# {idea['title']}\n\n{idea.get('content', '')}"
     return Response(
         content,
         mimetype="text/markdown",
