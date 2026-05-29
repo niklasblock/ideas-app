@@ -1,6 +1,6 @@
 # web/main.py
 from flask import Flask, render_template, request, redirect, url_for, Response
-from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea, update_idea_meta
+from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea, update_idea_meta, get_backlinks, add_link, remove_link
 
 app = Flask(__name__, template_folder="templates")
 
@@ -21,7 +21,9 @@ def detail(idea_id):
     idea = get_idea(idea_id)
     if not idea:
         return redirect(url_for("index"))
-    return render_template("detail.html", idea=idea)
+    backlinks = get_backlinks(idea_id)
+    all_ideas = [i for i in list_ideas() if i["id"] != idea_id]
+    return render_template("detail.html", idea=idea, backlinks=backlinks, all_ideas=all_ideas)
 
 @app.route("/idea/<int:idea_id>/save", methods=["POST"])
 def save(idea_id):
@@ -54,6 +56,21 @@ def save_meta(idea_id):
     }
     update_idea_meta(idea_id, tags=tags, context=context)
     return redirect(url_for("detail", idea_id=idea_id))
+
+@app.route("/idea/<int:idea_id>/link", methods=["POST"])
+def link_idea(idea_id):
+    to_id = int(request.form.get("to_id"))
+    link_type = request.form.get("link_type", "related")
+    add_link(idea_id, to_id, link_type)
+    return redirect(url_for("detail", idea_id=idea_id))
+
+@app.route("/idea/<int:idea_id>/unlink", methods=["POST"])
+def unlink_idea(idea_id):
+    to_id = int(request.form.get("to_id"))
+    link_type = request.form.get("link_type", "related")
+    remove_link(idea_id, to_id, link_type)
+    return redirect(url_for("detail", idea_id=idea_id))
+
 
 def main():
     app.run(debug=True)

@@ -177,3 +177,75 @@ body[data-theme="dark"] .meta-row input[type="text"] {
 .meta-row input[type="text"]:focus {
     border-color: #aaa;
 }
+.links-section {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.links-col {
+    flex: 1;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+body[data-theme="dark"] .links-col {
+    border-color: #3f3f46;
+    background: #27272a;
+}
+
+.links-col h3 {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #999;
+}
+
+.link-group {
+    margin-bottom: 10px;
+}
+
+.link-type-label {
+    font-size: 11px;
+    color: #aaa;
+    font-weight: 500;
+}
+
+.link-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+body[data-theme="dark"] .link-item {
+    border-bottom-color: #333;
+}
+
+.link-item a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.link-item a:hover { text-decoration: underline; }
+
+.unlink-btn {
+    background: transparent;
+    border: none;
+    color: #e24b4a;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+}
+
+.add-link-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}

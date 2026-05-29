@@ -55,6 +55,61 @@
                 <button type="submit" class="action-btn">Speichern</button>
             </form>
         </div>
+        
+        <div class="links-section">
+            <div class="links-col">
+                <h3>Verknüpfungen</h3>
+                {% for link_type, ids in idea.links.items() %}
+                    {% if ids %}
+                    <div class="link-group">
+                        <span class="link-type-label">{{ link_type }}</span>
+                        {% for linked_id in ids %}
+                            {% for i in all_ideas %}
+                                {% if i.id == linked_id %}
+                                <div class="link-item">
+                                    <a href="/idea/{{ i.id }}">{{ i.title }}</a>
+                                    <form action="/idea/{{ idea.id }}/unlink" method="POST" style="display:inline;">
+                                        <input type="hidden" name="to_id" value="{{ i.id }}">
+                                        <input type="hidden" name="link_type" value="{{ link_type }}">
+                                        <button type="submit" class="unlink-btn">✕</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <form action="/idea/{{ idea.id }}/link" method="POST" class="add-link-form">
+                    <select name="link_type">
+                        <option value="related">related</option>
+                        <option value="inspired_by">inspired_by</option>
+                        <option value="leads_to">leads_to</option>
+                        <option value="part_of">part_of</option>
+                    </select>
+                    <select name="to_id">
+                        {% for i in all_ideas %}
+                        <option value="{{ i.id }}">{{ i.title }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="action-btn">+ Verknüpfen</button>
+                </form>
+            </div>
+
+            <div class="links-col">
+                <h3>Backlinks</h3>
+                {% if backlinks %}
+                    {% for b in backlinks %}
+                    <div class="link-item">
+                        <a href="/idea/{{ b.id }}">{{ b.title }}</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color:#aaa; font-size:13px;">Keine Backlinks</p>
+                {% endif %}
+            </div>
+        </div>
 
         <div class="editor-actions">
             <button type="button" id="copy-btn" class="action-btn" title="Kopieren">

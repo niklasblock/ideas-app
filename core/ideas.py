@@ -90,3 +90,38 @@ def track_view(idea_id):
             idea["time"]["view_count"] = idea["time"].get("view_count", 0) + 1
             break
     save_ideas(ideas)
+
+def get_backlinks(idea_id):
+    ideas = load_ideas()
+    backlinks = []
+    for idea in ideas:
+        links = idea.get("links", {})
+        all_linked_ids = (
+            links.get("related", []) +
+            links.get("inspired_by", []) +
+            links.get("leads_to", []) +
+            links.get("part_of", [])
+        )
+        if idea_id in all_linked_ids:
+            backlinks.append(idea)
+    return backlinks
+
+def add_link(from_id, to_id, link_type="related"):
+    ideas = load_ideas()
+    for idea in ideas:
+        if idea["id"] == from_id:
+            idea.setdefault("links", {}).setdefault(link_type, [])
+            if to_id not in idea["links"][link_type]:
+                idea["links"][link_type].append(to_id)
+            break
+    save_ideas(ideas)
+
+def remove_link(from_id, to_id, link_type="related"):
+    ideas = load_ideas()
+    for idea in ideas:
+        if idea["id"] == from_id:
+            links = idea.get("links", {}).get(link_type, [])
+            if to_id in links:
+                links.remove(to_id)
+            break
+    save_ideas(ideas)
