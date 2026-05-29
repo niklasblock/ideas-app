@@ -2,10 +2,11 @@
 import markdown
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QTextEdit, QTextBrowser, QLabel
+    QPushButton, QTextEdit, QTextBrowser, QLabel,
+    QComboBox, QLineEdit, QFormLayout, QGroupBox
 )
 from PyQt6.QtCore import Qt, QTimer
-from core.ideas import get_idea, update_idea
+from core.ideas import get_idea, update_idea, update_idea_meta, track_view
 
 class DetailWindow(QWidget):
     def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
@@ -46,6 +47,9 @@ class DetailWindow(QWidget):
         date = QLabel(self.idea['time']['created'])
         date.setObjectName("detail_date")
         layout.addWidget(date)
+
+        meta_widget = self._build_meta_section()
+        layout.addWidget(meta_widget)
 
         # Action Buttons
         actions = QHBoxLayout()
@@ -118,3 +122,71 @@ class DetailWindow(QWidget):
         self.theme_btn.setText("☀" if self.dark_mode else "☾")
         if self.on_theme_change:
             self.on_theme_change(self.dark_mode)
+
+    def _build_meta_section(self):
+        group = QGroupBox()
+        form = QHBoxLayout(group)
+        form.setContentsMargins(12, 12, 12, 12)
+        form.setSpacing(16)
+
+        # Status
+        status_col = QVBoxLayout()
+        status_label = QLabel("Status")
+        status_label.setObjectName("meta_label")
+        self.status_cb = QComboBox()
+        self.status_cb.addItems(["raw", "refined", "applied", "archived"])
+        self.status_cb.setCurrentText(self.idea.get("context", {}).get("status", "raw"))
+        status_col.addWidget(status_label)
+        status_col.addWidget(self.status_cb)
+        form.addLayout(status_col)
+
+        # Importance
+        imp_col = QVBoxLayout()
+        imp_label = QLabel("Wichtigkeit")
+        imp_label.setObjectName("meta_label")
+        self.importance_cb = QComboBox()
+        self.importance_cb.addItems(["1", "2", "3", "4", "5"])
+        self.importance_cb.setCurrentText(str(self.idea.get("context", {}).get("importance", 1)))
+        imp_col.addWidget(imp_label)
+        imp_col.addWidget(self.importance_cb)
+        form.addLayout(imp_col)
+
+        # Energy
+        energy_col = QVBoxLayout()
+        energy_label = QLabel("Energie")
+        energy_label.setObjectName("meta_label")
+        self.energy_cb = QComboBox()
+        self.energy_cb.addItems(["low", "medium", "high"])
+        self.energy_cb.setCurrentText(self.idea.get("context", {}).get("energy", "medium"))
+        energy_col.addWidget(energy_label)
+        energy_col.addWidget(self.energy_cb)
+        form.addLayout(energy_col)
+
+        # Tags
+        tags_col = QVBoxLayout()
+        tags_label = QLabel("Tags")
+        tags_label.setObjectName("meta_label")
+        self.tags_input = QLineEdit()
+        self.tags_input.setPlaceholderText("ki, business, idee")
+        self.tags_input.setText(", ".join(self.idea.get("tags", [])))
+        tags_col.addWidget(tags_label)
+        tags_col.addWidget(self.tags_input)
+        form.addLayout(tags_col)
+
+        # Speichern
+        save_meta_btn = QPushButton("Speichern")
+        save_meta_btn.setObjectName("action_btn")
+        save_meta_btn.clicked.connect(self.save_meta)
+        form.addWidget(save_meta_btn)
+        form.setAlignment(save_meta_btn, Qt.AlignmentFlag.AlignBottom)
+
+        return group
+
+    def save_meta(self):
+        tags = [t.strip() for t in self.tags_input.text().split(",") if t.strip()]
+        context = {
+            "status": self.status_cb.currentText(),
+            "importance": int(self.importance_cb.currentText()),
+            "energy": self.energy_cb.currentText()
+        }
+        update_idea_meta(self.idea["id"], tags=tags, context=context)

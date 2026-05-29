@@ -109,6 +109,49 @@ LIGHT = """
         font-size: 12px;
         color: #aaa;
     }
+    QGroupBox {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 8px;
+        margin-top: 4px;
+    }
+
+    QLabel#meta_label {
+        font-size: 11px;
+        color: #999;
+        font-weight: 500;
+    }
+
+    QComboBox {
+        padding: 6px 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #f9f9f9;
+        color: #1a1a1a;
+        font-size: 13px;
+        min-width: 90px;
+        max-width: 90px;
+    }
+
+    QComboBox:focus {
+        border-color: #aaa;
+    }
+    QComboBox::drop-down {
+        border: none;
+        width: 20px;
+    }
+    QComboBox::down-arrow {
+        width: 10px;
+        height: 10px;
+    }
+
+    QComboBox QAbstractItemView {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        color: #1a1a1a;
+        selection-background-color: #f0f0f0;
+    }
 """
 
 DARK = """
@@ -186,7 +229,7 @@ DARK = """
         border: 1px solid #4a2828;
         border-radius: 8px;
         padding: 4px 12px;
-        font-size: 124px;
+        font-size: 12px;
         padding: 4px 8px; 
     }
     QPushButton#delete_btn:hover {
@@ -221,5 +264,45 @@ DARK = """
     QLabel#detail_date {
         font-size: 12px;
         color: #666;
+    }
+    QGroupBox {
+        border: 1px solid #3f3f46;
+        border-radius: 12px;
+        padding: 8px;
+        margin-top: 4px;
+    }
+
+    QLabel#meta_label {
+        font-size: 11px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    QComboBox {
+        padding: 6px 10px;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        background: #18181b;
+        color: #f0f0f0;
+        font-size: 13px;
+        min-width: 90px;
+        max-width: 90px;
+    }
+
+    QComboBox::drop-down {
+        border: none;
+        width: 20px;
+    }
+    QComboBox::down-arrow {
+        width: 10px;
+        height: 10px;
+    }
+
+    QComboBox QAbstractItemView {
+        background: #27272a;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        color: #f0f0f0;
+        selection-background-color: #3f3f46;
     }
 """
