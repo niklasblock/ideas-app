@@ -77,21 +77,30 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.table)
 
     def open_detail(self, row, col):
-        from gui.detail import DetailWindow
         id_text = self.table.item(row, 0).text().replace("#", "")
         idea_id = int(id_text)
+        self._open_detail(idea_id, on_back=self.show_list)
 
+    def open_detail_by_id(self, idea_id):
+        self._open_detail(idea_id, on_back=self.show_graph)
+
+    def _open_detail(self, idea_id, on_back):
+        from gui.detail import DetailWindow
         if self.stack.count() > 1:
             self.stack.removeWidget(self.stack.widget(1))
-
         self.detail_page = DetailWindow(
             idea_id,
             dark_mode=self.dark_mode,
-            on_back=self.show_list,
+            on_back=on_back,
             on_theme_change=self.set_theme
         )
         self.stack.addWidget(self.detail_page)
         self.stack.setCurrentIndex(1)
+
+    def show_graph(self):
+        if self.stack.count() > 1:
+            self.stack.removeWidget(self.stack.widget(1))
+        self.open_graph()
 
     def set_theme(self, dark_mode):
         self.dark_mode = dark_mode
@@ -158,7 +167,8 @@ class MainWindow(QMainWindow):
         self.graph_page = GraphWindow(
             dark_mode=self.dark_mode,
             on_back=self.show_list,
-            on_theme_change=self.set_theme
+            on_theme_change=self.set_theme,
+            on_idea_open=self.open_detail_by_id
         )
         self.stack.addWidget(self.graph_page)
         self.stack.setCurrentIndex(1)

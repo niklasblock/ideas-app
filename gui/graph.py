@@ -6,11 +6,12 @@ from PyQt6.QtCore import QUrl
 from core.ideas import list_ideas
 
 class GraphWindow(QWidget):
-    def __init__(self, dark_mode=False, on_back=None, on_theme_change=None):
+    def __init__(self, dark_mode=False, on_back=None, on_theme_change=None, on_idea_open=None):
         super().__init__()
         self.dark_mode = dark_mode
         self.on_back = on_back
         self.on_theme_change = on_theme_change
+        self.on_idea_open = on_idea_open
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -31,6 +32,8 @@ class GraphWindow(QWidget):
 
         # Graph
         self.web = QWebEngineView()
+        self.web.loadFinished.connect(lambda: None)
+        self.web.page().titleChanged.connect(self.on_title_changed)
         layout.addWidget(self.web)
 
         self.load_graph()
@@ -78,7 +81,15 @@ class GraphWindow(QWidget):
                 const svg = d3.select("#graph");
                 const width = window.innerWidth;
                 const height = window.innerHeight;
-                svg.attr("viewBox", [0, 0, width, height]);
+                svg.attr("width", width).attr("height", height);
+
+                const g = svg.append("g");  // Container für zoom
+
+                svg.call(d3.zoom()
+                    .scaleExtent([0.1, 4])
+                    .on("zoom", (event) => {{
+                        g.attr("transform", event.transform);
+                    }}));
 
                 const simulation = d3.forceSimulation(nodes)
                     .force("link", d3.forceLink(edges).id(d => d.id).distance(200))
@@ -86,13 +97,13 @@ class GraphWindow(QWidget):
                     .force("center", d3.forceCenter(width / 2, height / 2))
                     .force("collision", d3.forceCollide().radius(60));
 
-                const link = svg.append("g")
+                const link = g.append("g")
                     .selectAll("line")
                     .data(edges)
                     .join("line")
                     .attr("class", "link");
 
-                const node = svg.append("g")
+                const node = g.append("g")
                     .selectAll("g")
                     .data(nodes)
                     .join("g")
@@ -104,7 +115,10 @@ class GraphWindow(QWidget):
 
                 node.append("circle")
                     .attr("r", 14)
-                    .attr("fill", d => statusColors[d.status] || "#888");
+                    .attr("fill", d => statusColors[d.status] || "#888")
+                    .on("click", (event, d) => {{
+                        document.title = `idea-${{d.id}}`;
+                    }});
 
                 node.append("text")
                     .attr("x", 20)
@@ -136,3 +150,15 @@ class GraphWindow(QWidget):
             self.on_theme_change(self.dark_mode)
         self.apply_theme()
         self.load_graph()
+
+    def on_url_changed(self, url):
+        if url.scheme() == "idea":
+            idea_id = int(url.host())
+            if self.on_idea_open:
+                self.on_idea_open(idea_id)
+
+    def on_title_changed(self, title):
+        if title.startswith("idea-"):
+            idea_id = int(title.replace("idea-", ""))
+            if self.on_idea_open:
+                self.on_idea_open(idea_id)
