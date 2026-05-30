@@ -3,19 +3,24 @@ import markdown
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTextEdit, QTextBrowser, QLabel,
-    QComboBox, QLineEdit, QFormLayout, QGroupBox
+    QComboBox, QLineEdit, QFormLayout, QGroupBox, 
+    QFrame 
 )
 from PyQt6.QtCore import Qt, QTimer
-from core.ideas import get_idea, update_idea, update_idea_meta, track_view
+from core.ideas import (get_idea, update_idea, update_idea_meta,
+                         add_link, remove_link, get_backlinks, list_ideas)
 
 class DetailWindow(QWidget):
     def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
         super().__init__()
-        self.idea_id = get_idea(idea_id)
+        self.idea_id = idea_id  # einfach die ID speichern
         self.dark_mode = dark_mode
         self.preview_visible = False
         self.on_back = on_back
         self.idea = get_idea(idea_id)
+        if not self.idea:
+            print(f"Idee {idea_id} nicht gefunden")
+            return
         self.on_theme_change = on_theme_change
 
 
@@ -39,7 +44,7 @@ class DetailWindow(QWidget):
         header.addWidget(self.theme_btn)
         layout.addLayout(header)
 
-        # Titel + Datum
+        # Titel + Datum + Meta + links 
         title = QLabel(self.idea['title'])
         title.setObjectName("detail_title")
         layout.addWidget(title)
@@ -50,6 +55,9 @@ class DetailWindow(QWidget):
 
         meta_widget = self._build_meta_section()
         layout.addWidget(meta_widget)
+
+        links_widget = self._build_links_section()
+        layout.addWidget(links_widget)
 
         # Action Buttons
         actions = QHBoxLayout()
@@ -190,3 +198,95 @@ class DetailWindow(QWidget):
             "energy": self.energy_cb.currentText()
         }
         update_idea_meta(self.idea["id"], tags=tags, context=context)
+
+    def _build_links_section(self):
+        container = QWidget()
+        outer = QHBoxLayout(container)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(16)
+
+        # Verknüpfungen
+        links_box = QGroupBox("Verknüpfungen")
+        links_layout = QVBoxLayout(links_box)
+
+        self.links_list = QVBoxLayout()
+        links_layout.addLayout(self.links_list)
+        self._refresh_links()
+
+        # Neue Verknüpfung hinzufügen
+        add_row = QHBoxLayout()
+        self.link_type_cb = QComboBox()
+        self.link_type_cb.addItems(["related", "inspired_by", "leads_to", "part_of"])
+        self.link_target_cb = QComboBox()
+        all_ideas = [i for i in list_ideas() if i["id"] != self.idea_id]
+        for i in all_ideas:
+            self.link_target_cb.addItem(i["title"], i["id"])
+        add_link_btn = QPushButton("+ Verknüpfen")
+        add_link_btn.setFixedWidth(100)
+        add_link_btn.setObjectName("action_btn")
+        add_link_btn.clicked.connect(self.add_link_action)
+        add_row.addWidget(self.link_type_cb)
+        add_row.addWidget(self.link_target_cb)
+        add_row.addWidget(add_link_btn)
+        links_layout.addLayout(add_row)
+        outer.addWidget(links_box)
+
+        # Backlinks
+        backlinks_box = QGroupBox("Backlinks")
+        backlinks_layout = QVBoxLayout(backlinks_box)
+        backlinks = get_backlinks(self.idea_id)
+        if backlinks:
+            for b in backlinks:
+                lbl = QLabel(b["title"])
+                lbl.setStyleSheet("font-size: 13px;")
+                backlinks_layout.addWidget(lbl)
+        else:
+            lbl = QLabel("Keine Backlinks")
+            lbl.setStyleSheet("color: #aaa; font-size: 13px;")
+            backlinks_layout.addWidget(lbl)
+        backlinks_layout.addStretch()
+        outer.addWidget(backlinks_box)
+
+        return container
+
+    def _refresh_links(self):
+        while self.links_list.count():
+            item = self.links_list.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        self.idea = get_idea(self.idea_id)  # immer frisch laden
+        if not self.idea:
+            return
+        for link_type, ids in self.idea.get("links", {}).items():
+            for linked_id in ids:
+                linked = get_idea(linked_id)
+                if linked:
+                    row = QHBoxLayout()
+                    row_widget = QWidget()
+                    row_widget.setLayout(row)
+                    type_lbl = QLabel(f"[{link_type}]")
+                    type_lbl.setStyleSheet("color: #aaa; font-size: 11px;")
+                    title_lbl = QLabel(linked["title"])
+                    title_lbl.setStyleSheet("font-size: 13px;")
+                    unlink_btn = QPushButton("✕")
+                    unlink_btn.setFixedSize(24, 24)
+                    unlink_btn.setStyleSheet("color: #e24b4a; border: none; background: transparent;")
+                    unlink_btn.clicked.connect(lambda _, fid=self.idea_id, tid=linked_id, lt=link_type: self.remove_link_action(fid, tid, lt))
+                    row.addWidget(type_lbl)
+                    row.addWidget(title_lbl)
+                    row.addStretch()
+                    row.addWidget(unlink_btn)
+                    self.links_list.addWidget(row_widget)
+
+    def add_link_action(self):
+        to_id = self.link_target_cb.currentData()
+        link_type = self.link_type_cb.currentText()
+        add_link(self.idea_id, to_id, link_type)
+        self.idea = get_idea(self.idea_id)  # neu laden
+        self._refresh_links()
+
+    def remove_link_action(self, from_id, to_id, link_type):
+        remove_link(from_id, to_id, link_type)
+        self.idea = get_idea(self.idea_id)  # neu laden
+        self._refresh_links()
