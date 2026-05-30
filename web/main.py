@@ -71,6 +71,16 @@ def unlink_idea(idea_id):
     remove_link(idea_id, to_id, link_type)
     return redirect(url_for("detail", idea_id=idea_id))
 
+@app.route("/graph")
+def graph():
+    ideas = list_ideas()
+    nodes = [{"id": i["id"], "title": i["title"], "status": i.get("context", {}).get("status", "raw")} for i in ideas]
+    edges = []
+    for idea in ideas:
+        for link_type, ids in idea.get("links", {}).items():
+            for to_id in ids:
+                edges.append({"source": idea["id"], "target": to_id, "type": link_type})
+    return render_template("graph.html", nodes=nodes, edges=edges)
 
 def main():
     app.run(debug=True)

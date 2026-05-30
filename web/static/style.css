@@ -139,3 +139,14 @@ body[data-theme="dark"] .theme-btn {
     padding: 40px;
     font-size: 14px;
 }
+
+.tooltip {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+}
+
+body[data-theme="dark"] .tooltip {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #f0f0f0;
+}

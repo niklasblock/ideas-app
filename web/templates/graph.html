@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideen Graph</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body { overflow: hidden; }
+        body[data-theme="dark"] .node text {
+            fill: #f0f0f0;
+        }
+        body[data-theme="dark"] .node circle {
+            stroke: #27272a;
+        }
+        body[data-theme="dark"] .link {
+            stroke: #666;
+        }
+        #graph { width: 100vw; height: 100vh; }
+
+        .node circle {
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: r 0.2s;
+        }
+        .node circle:hover { r: 12; }
+        .node text {
+            font-size: 12px;
+            pointer-events: none;
+            dominant-baseline: middle;
+        }
+        .link {
+            stroke-opacity: 0.4;
+            stroke-width: 1.5px;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .back-btn {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div style="position:absolute; top:20px; left:20px; right:20px; z-index:10; display:flex; justify-content:space-between; align-items:center;">
+        <a href="/" class="back-btn" style="text-decoration:none;">← Zurück</a>
+        <button id="theme-toggle" class="theme-btn"></button>
+    </div>
+
+    <svg id="graph"></svg>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const nodes = {{ nodes | tojson }};
+        const edges = {{ edges | tojson }};
+
+        const statusColors = {
+            raw: "#888780",
+            refined: "#378ADD",
+            applied: "#1D9E75",
+            archived: "#D85A30"
+        };
+
+        const svg = d3.select("#graph");
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        svg.attr("viewBox", [0, 0, width, height]);
+
+        const tooltip = d3.select("#tooltip");
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(edges).id(d => d.id).distance(200))
+            .force("charge", d3.forceManyBody().strength(-500))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(60));
+
+        const link = svg.append("g")
+            .selectAll("line")
+            .data(edges)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke", "#888");
+
+        const node = svg.append("g")
+            .selectAll("g")
+            .data(nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstart)
+                .on("drag", dragged)
+                .on("end", dragend));
+
+        node.append("circle")
+            .attr("r", 14)
+            .attr("fill", d => statusColors[d.status] || "#888")
+            .attr("stroke-width", 2)
+            .attr("stroke", "#fff")
+            .on("click", (event, d) => {
+                window.location.href = `/idea/${d.id}`;
+            })
+            .on("mouseover", (event, d) => {
+                tooltip
+                    .style("opacity", 1)
+                    .style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 12) + "px")
+                    .html(`<strong>${d.title}</strong><br><span style="color:#aaa">${d.status}</span>`);
+            })
+            .on("mouseout", () => tooltip.style("opacity", 0));
+
+        node.append("text")
+            .attr("x", 14)
+            .attr("y", 0)
+            .text(d => d.title.length > 20 ? d.title.slice(0, 20) + "…" : d.title);
+
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        function dragstart(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x; d.fy = d.y;
+        }
+        function dragged(event, d) {
+            d.fx = event.x; d.fy = event.y;
+        }
+        function dragend(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null; d.fy = null;
+        }
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
