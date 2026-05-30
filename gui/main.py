@@ -1,5 +1,6 @@
 # gui/main.py
 import sys
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QHBoxLayout, QLineEdit, QPushButton, QTableWidget,
@@ -35,11 +36,15 @@ class MainWindow(QMainWindow):
         title = QPushButton("Ideen-App")
         title.setObjectName("title_btn")
         title.setEnabled(False)
+        graph_btn = QPushButton("Graph")
+        graph_btn.setObjectName("action_btn")
+        graph_btn.clicked.connect(self.open_graph)
         self.theme_btn = QPushButton("☾")
         self.theme_btn.setObjectName("theme_btn")
         self.theme_btn.clicked.connect(self.toggle_theme)
         header_layout.addWidget(title)
         header_layout.addStretch()
+        header_layout.addWidget(graph_btn)
         header_layout.addWidget(self.theme_btn)
         layout.addLayout(header_layout)
 
@@ -145,6 +150,18 @@ class MainWindow(QMainWindow):
         from core.ideas import delete_idea
         delete_idea(idea_id)
         self.load_ideas()
+
+    def open_graph(self):
+        from gui.graph import GraphWindow
+        if self.stack.count() > 1:
+            self.stack.removeWidget(self.stack.widget(1))
+        self.graph_page = GraphWindow(
+            dark_mode=self.dark_mode,
+            on_back=self.show_list,
+            on_theme_change=self.set_theme
+        )
+        self.stack.addWidget(self.graph_page)
+        self.stack.setCurrentIndex(1)
 
 def main():
     app = QApplication(sys.argv)

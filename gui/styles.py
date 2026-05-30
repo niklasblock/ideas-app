@@ -42,7 +42,7 @@ LIGHT = """
     }
     QPushButton#title_btn {
         background-color: transparent;
-        color: #1a1a1a;
+        color: #f5f5f5;
         border: none;
         font-size: 18px;
         font-weight: bold;
