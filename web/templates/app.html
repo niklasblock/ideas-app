@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second Brain</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+    <div class="app">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Second Brain</span>
+                <div class="sidebar-actions">
+                    <button class="icon-btn" id="search-btn" title="Suchen"><i class="ti ti-search"></i></button>
+                    <button class="icon-btn" id="theme-btn" title="Theme"><i class="ti ti-moon"></i></button>
+                </div>
+            </div>
+
+            <div class="sidebar-new">
+                <button class="new-idea-btn" id="new-idea-btn">
+                    <i class="ti ti-plus"></i>
+                    <span>Neue Idee</span>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="nav-label">Navigation</span>
+                <a class="nav-item active" data-view="ideas" href="#">
+                    <i class="ti ti-bulb"></i>
+                    <span>Alle Ideen</span>
+                </a>
+                <a class="nav-item" data-view="recall" href="#">
+                    <i class="ti ti-refresh"></i>
+                    <span>Recall</span>
+                </a>
+                <a class="nav-item" data-view="graph" href="#">
+                    <i class="ti ti-chart-dots"></i>
+                    <span>Graph</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-ideas">
+                <span class="nav-label">Ideen</span>
+                <div id="ideas-list"></div>
+            </div>
+        </aside>
+
+        <!-- Hauptbereich -->
+        <main class="main">
+            <div class="tabs-bar" id="tabs-bar"></div>
+            <div class="main-content" id="main-content"></div>
+        </main>
+
+    </div>
+
+    <!-- New Idea Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <div class="modal">
+            <h3>Neue Idee</h3>
+            <input type="text" id="new-idea-input" placeholder="Idee eingeben...">
+            <div class="modal-actions">
+                <button class="btn-secondary" id="modal-cancel">Abbrechen</button>
+                <button class="btn-primary" id="modal-confirm">Erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

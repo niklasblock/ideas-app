@@ -50,10 +50,6 @@
     </style>
 </head>
 <body>
-    <div style="position:absolute; top:20px; left:20px; right:20px; z-index:10; display:flex; justify-content:space-between; align-items:center;">
-        <a href="/" class="back-btn" style="text-decoration:none;">← Zurück</a>
-        <button id="theme-toggle" class="theme-btn"></button>
-    </div>
 
     <svg id="graph"></svg>
     <div class="tooltip" id="tooltip"></div>
@@ -178,6 +174,5 @@
             d.fx = null; d.fy = null;
         }
     </script>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
