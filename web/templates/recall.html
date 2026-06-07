@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recall</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recall.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">← Zurück</a>
+            <button id="theme-toggle" class="theme-btn"></button>
+        </div>
+
+        <h1 style="margin-bottom: 24px;">Recall</h1>
+
+        <!-- Zufällige Idee -->
+        <div class="recall-section">
+            <h2>Zufällige Idee</h2>
+            {% if random_idea %}
+            <div class="idea-card">
+                <a href="/idea/{{ random_idea.id }}" class="idea-title">{{ random_idea.title }}</a>
+                <div class="idea-meta">
+                    <span class="status-badge status-{{ random_idea.context.status }}">{{ random_idea.context.status }}</span>
+                    <span class="idea-date">{{ random_idea.time.created }}</span>
+                </div>
+            </div>
+            {% endif %}
+            <a href="/recall" class="action-btn" style="text-decoration:none; display:inline-block; margin-top:8px;">↻ Neue zufällige Idee</a>
+        </div>
+
+        <!-- Lange nicht gesehen -->
+        <div class="recall-section">
+            <h2>Lange nicht gesehen <span class="count">{{ unseen|length }}</span></h2>
+            {% if unseen %}
+                {% for idea in unseen %}
+                <div class="idea-card">
+                    <a href="/idea/{{ idea.id }}" class="idea-title">{{ idea.title }}</a>
+                    <div class="idea-meta">
+                        <span class="status-badge status-{{ idea.context.status }}">{{ idea.context.status }}</span>
+                        <span class="idea-date">Zuletzt gesehen: {{ idea.time.last_viewed }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty">Alle Ideen wurden kürzlich angeschaut.</p>
+            {% endif %}
+        </div>
+
+        <!-- Unverknüpfte Ideen -->
+        <div class="recall-section">
+            <h2>Unverknüpfte Ideen <span class="count">{{ unlinked|length }}</span></h2>
+            {% if unlinked %}
+                {% for idea in unlinked %}
+                <div class="idea-card">
+                    <a href="/idea/{{ idea.id }}" class="idea-title">{{ idea.title }}</a>
+                    <div class="idea-meta">
+                        <span class="status-badge status-{{ idea.context.status }}">{{ idea.context.status }}</span>
+                        <span class="idea-date">{{ idea.time.created }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty">Alle Ideen sind verknüpft.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

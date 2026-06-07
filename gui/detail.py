@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer
 from core.ideas import (get_idea, update_idea, update_idea_meta,
                          add_link, remove_link, get_backlinks, list_ideas)
+from core.ideas import track_view
 
 class DetailWindow(QWidget):
     def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
@@ -21,6 +22,7 @@ class DetailWindow(QWidget):
         if not self.idea:
             print(f"Idee {idea_id} nicht gefunden")
             return
+        track_view(idea_id)
         self.on_theme_change = on_theme_change
 
 

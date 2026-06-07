@@ -2,6 +2,8 @@
 from datetime import datetime
 from uuid import uuid4
 from core.storage import load_ideas, save_ideas
+from datetime import datetime, timedelta
+import random
 
 def _now():
     return datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -125,3 +127,38 @@ def remove_link(from_id, to_id, link_type="related"):
                 links.remove(to_id)
             break
     save_ideas(ideas)
+
+
+def get_unseen_ideas(days=7):
+    ideas = load_ideas()
+    cutoff = datetime.now() - timedelta(days=days)
+    result = []
+    for idea in ideas:
+        last_viewed = idea.get("time", {}).get("last_viewed")
+        if last_viewed:
+            last_viewed_dt = datetime.strptime(last_viewed, "%Y-%m-%d %H:%M")
+            if last_viewed_dt < cutoff:
+                result.append(idea)
+    return result
+
+def get_random_idea():
+    ideas = load_ideas()
+    if not ideas:
+        return None
+    return random.choice(ideas)
+
+def get_unlinked_ideas():
+    ideas = load_ideas()
+    result = []
+    for idea in ideas:
+        links = idea.get("links", {})
+        all_links = (
+            links.get("related", []) +
+            links.get("inspired_by", []) +
+            links.get("leads_to", []) +
+            links.get("part_of", [])
+        )
+        backlinks = get_backlinks(idea["id"])
+        if not all_links and not backlinks:
+            result.append(idea)
+    return result

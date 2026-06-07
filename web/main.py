@@ -1,6 +1,6 @@
 # web/main.py
 from flask import Flask, render_template, request, redirect, url_for, Response
-from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea, update_idea_meta, get_backlinks, add_link, remove_link
+from core.ideas import add_idea, list_ideas, delete_idea, get_idea, update_idea, update_idea_meta, get_backlinks, add_link, remove_link, get_unseen_ideas, get_random_idea, get_unlinked_ideas, track_view
 
 app = Flask(__name__, template_folder="templates")
 
@@ -21,6 +21,7 @@ def detail(idea_id):
     idea = get_idea(idea_id)
     if not idea:
         return redirect(url_for("index"))
+    track_view(idea_id)
     backlinks = get_backlinks(idea_id)
     all_ideas = [i for i in list_ideas() if i["id"] != idea_id]
     return render_template("detail.html", idea=idea, backlinks=backlinks, all_ideas=all_ideas)
@@ -81,6 +82,13 @@ def graph():
             for to_id in ids:
                 edges.append({"source": idea["id"], "target": to_id, "type": link_type})
     return render_template("graph.html", nodes=nodes, edges=edges)
+
+@app.route("/recall")
+def recall():
+    unseen = get_unseen_ideas(days=7)
+    unlinked = get_unlinked_ideas()
+    random_idea = get_random_idea()
+    return render_template("recall.html", unseen=unseen, unlinked=unlinked, random_idea=random_idea)
 
 def main():
     app.run(debug=True)
