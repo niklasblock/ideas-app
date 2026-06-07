@@ -76,17 +76,35 @@
 
         const g = svg.append("g");
 
-        svg.call(d3.zoom()
+        const zoom = d3.zoom()
             .scaleExtent([0.1, 4])
             .on("zoom", (event) => {
                 g.attr("transform", event.transform);
-            }));
+            });
+
+        svg.call(zoom);
+
+        // Link-Anzahl zuerst berechnen
+        const linkCount = {};
+        nodes.forEach(d => linkCount[d.id] = 0);
+        edges.forEach(e => {
+            const s = e.source.id || e.source;
+            const t = e.target.id || e.target;
+            linkCount[s] = (linkCount[s] || 0) + 1;
+            linkCount[t] = (linkCount[t] || 0) + 1;
+        });
+
+        const radiusScale = d3.scaleLinear()
+            .domain([0, d3.max(Object.values(linkCount)) || 1])
+            .range([8, 18]);
 
         const simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(edges).id(d => d.id).distance(200))
-            .force("charge", d3.forceManyBody().strength(-500))
+            .force("link", d3.forceLink(edges).id(d => d.id).distance(120))
+            .force("charge", d3.forceManyBody().strength(-200))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("collision", d3.forceCollide().radius(60));
+            .force("collision", d3.forceCollide().radius(d => radiusScale(linkCount[d.id] || 0) + 15))
+            .force("x", d3.forceX(width / 2).strength(0.05))
+            .force("y", d3.forceY(height / 2).strength(0.05));
 
         const link = g.append("g")
             .selectAll("line")
@@ -105,10 +123,10 @@
                 .on("end", dragend));
 
         node.append("circle")
-            .attr("r", 14)
+            .attr("r", d => radiusScale(linkCount[d.id] || 0))
             .attr("fill", d => statusColors[d.status] || "#888")
-            .attr("stroke-width", 2)
             .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
             .on("click", (event, d) => {
                 window.location.href = `/idea/${d.id}`;
             })
@@ -117,7 +135,7 @@
                     .style("opacity", 1)
                     .style("left", (event.pageX + 12) + "px")
                     .style("top", (event.pageY - 12) + "px")
-                    .html(`<strong>${d.title}</strong><br><span style="color:#aaa">${d.status}</span>`);
+                    .html(`<strong>${d.title}</strong><br><span style="color:#aaa">${d.status} · ${linkCount[d.id] || 0} Verbindungen</span>`);
             })
             .on("mouseout", () => tooltip.style("opacity", 0));
 
@@ -134,6 +152,19 @@
                 .attr("y2", d => d.target.y);
             node.attr("transform", d => `translate(${d.x},${d.y})`);
         });
+
+        setTimeout(() => {
+            const bounds = g.node().getBBox();
+            if (bounds.width === 0) return;
+            const scale = Math.min(0.85 / Math.max(bounds.width / width, bounds.height / height), 1);
+            const midX = bounds.x + bounds.width / 2;
+            const midY = bounds.y + bounds.height / 2;
+            const tx = width / 2 - scale * midX;
+            const ty = height / 2 - scale * midY;
+            svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+        }, 2000);
+
+        const tooltip = d3.select("#tooltip");
 
         function dragstart(event, d) {
             if (!event.active) simulation.alphaTarget(0.3).restart();

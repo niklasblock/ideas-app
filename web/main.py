@@ -90,5 +90,16 @@ def recall():
     random_idea = get_random_idea()
     return render_template("recall.html", unseen=unseen, unlinked=unlinked, random_idea=random_idea)
 
+@app.route("/idea/<int:idea_id>")
+def detail(idea_id):
+    idea = get_idea(idea_id)
+    if not idea:
+        return redirect(url_for("index"))
+    track_view(idea_id)
+    backlinks = get_backlinks(idea_id)
+    all_ideas = [i for i in list_ideas() if i["id"] != idea_id]
+    similar = get_similar_ideas(idea_id)
+    return render_template("detail.html", idea=idea, backlinks=backlinks, all_ideas=all_ideas, similar=similar)
+
 def main():
     app.run(debug=True)

@@ -162,3 +162,22 @@ def get_unlinked_ideas():
         if not all_links and not backlinks:
             result.append(idea)
     return result
+
+def get_idea_link_count(idea_id):
+    ideas = load_ideas()
+    for idea in ideas:
+        if idea["id"] == idea_id:
+            links = idea.get("links", {})
+            outgoing = sum(len(v) for v in links.values())
+            incoming = len(get_backlinks(idea_id))
+            return outgoing + incoming
+    return 0
+
+def get_most_connected_ideas(top=5):
+    ideas = load_ideas()
+    scored = []
+    for idea in ideas:
+        count = get_idea_link_count(idea["id"])
+        scored.append((count, idea))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [(count, idea) for count, idea in scored if count > 0][:top]

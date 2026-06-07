@@ -83,19 +83,36 @@ class GraphWindow(QWidget):
                 const height = window.innerHeight;
                 svg.attr("width", width).attr("height", height);
 
-                const g = svg.append("g");  // Container für zoom
+                const g = svg.append("g");
 
-                svg.call(d3.zoom()
+                const zoom = d3.zoom()
                     .scaleExtent([0.1, 4])
                     .on("zoom", (event) => {{
                         g.attr("transform", event.transform);
-                    }}));
+                    }});
+                svg.call(zoom);
+
+                // Zuerst linkCount und radiusScale berechnen
+                const linkCount = {{}};
+                nodes.forEach(d => linkCount[d.id] = 0);
+                edges.forEach(e => {{
+                    const s = e.source.id || e.source;
+                    const t = e.target.id || e.target;
+                    linkCount[s] = (linkCount[s] || 0) + 1;
+                    linkCount[t] = (linkCount[t] || 0) + 1;
+                }});
+
+                const radiusScale = d3.scaleLinear()
+                    .domain([0, d3.max(Object.values(linkCount)) || 1])
+                    .range([8, 18]);
 
                 const simulation = d3.forceSimulation(nodes)
-                    .force("link", d3.forceLink(edges).id(d => d.id).distance(200))
-                    .force("charge", d3.forceManyBody().strength(-500))
+                    .force("link", d3.forceLink(edges).id(d => d.id).distance(120))
+                    .force("charge", d3.forceManyBody().strength(-200))
                     .force("center", d3.forceCenter(width / 2, height / 2))
-                    .force("collision", d3.forceCollide().radius(60));
+                    .force("x", d3.forceX(width / 2).strength(0.05))
+                    .force("y", d3.forceY(height / 2).strength(0.05))
+                    .force("collision", d3.forceCollide().radius(d => radiusScale(linkCount[d.id] || 0) + 15));
 
                 const link = g.append("g")
                     .selectAll("line")
@@ -114,8 +131,10 @@ class GraphWindow(QWidget):
                         .on("end", (e, d) => {{ if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }}));
 
                 node.append("circle")
-                    .attr("r", 14)
+                    .attr("r", d => radiusScale(linkCount[d.id] || 0))
                     .attr("fill", d => statusColors[d.status] || "#888")
+                    .attr("stroke", "{bg}")
+                    .attr("stroke-width", 2)
                     .on("click", (event, d) => {{
                         document.title = `idea-${{d.id}}`;
                     }});
