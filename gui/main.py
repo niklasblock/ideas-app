@@ -96,7 +96,8 @@ class MainWindow(QMainWindow):
             idea_id,
             dark_mode=self.dark_mode,
             on_back=on_back,
-            on_theme_change=self.set_theme
+            on_theme_change=self.set_theme,
+            on_idea_open=lambda id: self._open_detail(id, on_back=on_back)
         )
         self.stack.addWidget(self.detail_page)
         self.stack.setCurrentIndex(1)

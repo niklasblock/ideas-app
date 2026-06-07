@@ -12,7 +12,7 @@ from core.ideas import (get_idea, update_idea, update_idea_meta,
 from core.ideas import track_view
 
 class DetailWindow(QWidget):
-    def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None):
+    def __init__(self, idea_id, dark_mode=False, on_back=None, on_theme_change=None, on_idea_open=None):
         super().__init__()
         self.idea_id = idea_id  # einfach die ID speichern
         self.dark_mode = dark_mode
@@ -24,6 +24,8 @@ class DetailWindow(QWidget):
             return
         track_view(idea_id)
         self.on_theme_change = on_theme_change
+        self.on_idea_open = on_idea_open
+
 
 
         self.setWindowTitle(self.idea['title'])
@@ -249,6 +251,33 @@ class DetailWindow(QWidget):
         backlinks_layout.addStretch()
         outer.addWidget(backlinks_box)
 
+        # Ähnliche Ideen
+        similar_box = QGroupBox("Ähnliche Ideen")
+        similar_layout = QVBoxLayout(similar_box)
+        from core.similarity import get_similar_ideas
+        similar = get_similar_ideas(self.idea_id)
+        if similar:
+            for s in similar:
+                row = QHBoxLayout()
+                row_widget = QWidget()
+                row_widget.setLayout(row)
+                title_btn = QPushButton(s["idea"]["title"])
+                title_btn.setObjectName("action_btn")
+                title_btn.setStyleSheet("text-align: left; border: none;")
+                title_btn.clicked.connect(lambda _, id=s["idea"]["id"]: self._open_similar(id))
+                score = QLabel(str(s["score"]))            
+                score.setStyleSheet("color: #aaa; font-size: 11px;")
+                row.addWidget(title_btn)
+                row.addStretch()
+                row.addWidget(score)
+                similar_layout.addWidget(row_widget)
+        else:
+            lbl = QLabel("Keine ähnlichen Ideen")
+            lbl.setStyleSheet("color: #aaa; font-size: 13px;")
+            similar_layout.addWidget(lbl)
+        similar_layout.addStretch()
+        outer.addWidget(similar_box)
+
         return container
 
     def _refresh_links(self):
@@ -292,3 +321,7 @@ class DetailWindow(QWidget):
         remove_link(from_id, to_id, link_type)
         self.idea = get_idea(self.idea_id)  # neu laden
         self._refresh_links()
+
+    def _open_similar(self, idea_id):
+        if self.on_idea_open:
+            self.on_idea_open(idea_id)

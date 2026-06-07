@@ -111,6 +111,20 @@
             </div>
         </div>
 
+        <div class="links-col">
+            <h3>Ähnliche Ideen</h3>
+            {% if similar %}
+                {% for s in similar %}
+                <div class="link-item">
+                    <a href="/idea/{{ s.idea.id }}">{{ s.idea.title }}</a>
+                    <span style="color:#aaa; font-size:11px;">{{ s.score }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color:#aaa; font-size:13px;">Keine ähnlichen Ideen</p>
+            {% endif %}
+        </div>
+
         <div class="editor-actions">
             <button type="button" id="copy-btn" class="action-btn" title="Kopieren">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
