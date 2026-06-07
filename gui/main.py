@@ -42,8 +42,12 @@ class MainWindow(QMainWindow):
         self.theme_btn = QPushButton("☾")
         self.theme_btn.setObjectName("theme_btn")
         self.theme_btn.clicked.connect(self.toggle_theme)
+        recall_btn = QPushButton("Recall")
+        recall_btn.setObjectName("action_btn")
+        recall_btn.clicked.connect(self.open_recall)
         header_layout.addWidget(title)
         header_layout.addStretch()
+        header_layout.addWidget(recall_btn)
         header_layout.addWidget(graph_btn)
         header_layout.addWidget(self.theme_btn)
         layout.addLayout(header_layout)
@@ -81,8 +85,8 @@ class MainWindow(QMainWindow):
         idea_id = int(id_text)
         self._open_detail(idea_id, on_back=self.show_list)
 
-    def open_detail_by_id(self, idea_id):
-        self._open_detail(idea_id, on_back=self.show_graph)
+    def open_detail_by_id(self, idea_id, on_back=None):
+        self._open_detail(idea_id, on_back=on_back or self.show_list)
 
     def _open_detail(self, idea_id, on_back):
         from gui.detail import DetailWindow
@@ -172,6 +176,24 @@ class MainWindow(QMainWindow):
         )
         self.stack.addWidget(self.graph_page)
         self.stack.setCurrentIndex(1)
+
+    def open_recall(self):
+        from gui.recall import RecallWindow
+        if self.stack.count() > 1:
+            self.stack.removeWidget(self.stack.widget(1))
+        self.recall_page = RecallWindow(
+            dark_mode=self.dark_mode,
+            on_back=self.show_list,
+            on_theme_change=self.set_theme,
+            on_idea_open=lambda id: self.open_detail_by_id(id, on_back=self.show_recall)
+        )
+        self.stack.addWidget(self.recall_page)
+        self.stack.setCurrentIndex(1)
+
+    def show_recall(self):
+        if self.stack.count() > 1:
+            self.stack.removeWidget(self.stack.widget(1))
+        self.open_recall()
 
 def main():
     app = QApplication(sys.argv)

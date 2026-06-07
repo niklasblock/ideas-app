@@ -152,6 +152,19 @@ LIGHT = """
         color: #1a1a1a;
         selection-background-color: #f0f0f0;
     }
+    QScrollBar:vertical {
+        background: transparent;
+        width: 6px;
+        border-radius: 3px;
+    }
+    QScrollBar::handle:vertical {
+        background: #d0d0d0;
+        border-radius: 3px;
+        min-height: 20px;
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        height: 0px;
+    }
 """
 
 DARK = """
@@ -304,5 +317,18 @@ DARK = """
         border-radius: 8px;
         color: #f0f0f0;
         selection-background-color: #3f3f46;
+    }
+    QScrollBar:vertical {
+        background: transparent;
+        width: 6px;
+        border-radius: 3px;
+    }
+    QScrollBar::handle:vertical {
+        background: #3f3f46;
+        border-radius: 3px;
+        min-height: 20px;
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        height: 0px;
     }
 """
