@@ -378,6 +378,7 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
     gap: 8px;
     margin-bottom: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .btn-sm {

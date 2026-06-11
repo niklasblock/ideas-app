@@ -99,10 +99,10 @@ function closeTab(id, e) {
 function renderTabs() {
     const bar = document.getElementById('tabs-bar');
     bar.innerHTML = state.tabs.map(tab => `
-        <div class="tab ${state.activeTab === tab.id ? 'active' : ''}" onclick="openTab('${tab.id}', '${tab.title}', '${tab.type}')">
+        <div class="tab ${state.activeTab === tab.id ? 'active' : ''}" onclick="openTab(${JSON.stringify(tab.id)}, ${JSON.stringify(tab.title)}, '${tab.type}')">
             <i class="ti ti-file-text"></i>
-            <span>${tab.title.length > 20 ? tab.title.slice(0, 20) + '…' : tab.title}</span>
-            <span class="tab-close" onclick="closeTab('${tab.id}', event)"><i class="ti ti-x"></i></span>
+            <span>${String(tab.title).length > 20 ? String(tab.title).slice(0, 20) + '…' : tab.title}</span>
+            <span class="tab-close" onclick="closeTab(${JSON.stringify(tab.id)}, event)"><i class="ti ti-x"></i></span>
         </div>
     `).join('');
 }
@@ -144,14 +144,27 @@ function openIdeaTab(id, title) {
 }
 
 async function loadDetailView(id) {
+    if (!state.ideas.length) {
+        state.ideas = await api.getIdeas();
+    }
     document.getElementById('main-content').style.padding = '';
     document.getElementById('main-content').style.overflow = '';
-    const idea = await api.getIdea(id);
-    const similar = await api.getSimilar(id);
-    const allIdeas = state.ideas.filter(i => i.id !== id);
-    const content = document.getElementById('main-content');
+    
+    let idea, similar;
+    try {
+        idea = await api.getIdea(id);
+        similar = await api.getSimilar(id);
+    } catch(e) {
+        console.error('Fehler beim Laden:', e);
+        return;
+    }
+    
+    console.log('idea:', idea);
+    console.log('similar:', similar);
 
-    content.innerHTML = `
+    const mainContent = document.getElementById('main-content');
+    const allIdeas = state.ideas.filter(i => i.id !== id);  // diese Zeile fehlt
+    mainContent.innerHTML = `
         <div class="detail-header">
             <h1 class="detail-title">${idea.title}</h1>
             <p class="detail-date">${idea.time?.created || ''} · zuletzt gesehen ${idea.time?.last_viewed || ''}</p>
@@ -190,7 +203,9 @@ async function loadDetailView(id) {
                 <button class="btn-sm" onclick="togglePreview()"><i class="ti ti-eye"></i> Vorschau</button>
                 <button class="btn-sm" onclick="copyContent()"><i class="ti ti-copy"></i> Kopieren</button>
                 <a href="/api/ideas/${id}/export/md" class="btn-sm" style="text-decoration:none;"><i class="ti ti-download"></i> .md</a>
-                <button class="btn-primary" style="margin-left:auto;" onclick="saveContent(${id})">Speichern</button>
+            </div>
+            <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                <button class="btn-primary" onclick="saveContent(${id})">Speichern</button>
             </div>
             <div class="editor-split" id="editor-split">
                 <textarea id="editor-textarea" oninput="updatePreview()">${idea.content || ''}</textarea>
