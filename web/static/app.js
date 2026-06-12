@@ -80,15 +80,16 @@ function openTab(id, title, type = 'idea') {
     else if (type === 'graph') loadGraphView();
 }
 
-function closeTab(id, e) {
-    e.stopPropagation();
-    state.tabs = state.tabs.filter(t => t.id !== id);
-    if (state.activeTab === id) {
+function closeTab(id) {
+    state.tabs = state.tabs.filter(t => t.id !== id && String(t.id) !== String(id));
+    if (state.activeTab === id || String(state.activeTab) === String(id)) {
         state.activeTab = state.tabs.length ? state.tabs[state.tabs.length - 1].id : null;
         if (state.activeTab) {
             const tab = state.tabs.find(t => t.id === state.activeTab);
             if (tab.type === 'idea') loadDetailView(state.activeTab);
-            else loadIdeasView();
+            else if (tab.type === 'ideas') loadIdeasView();
+            else if (tab.type === 'recall') loadRecallView();
+            else if (tab.type === 'graph') loadGraphView();
         } else {
             loadIdeasView();
         }
@@ -99,13 +100,31 @@ function closeTab(id, e) {
 function renderTabs() {
     const bar = document.getElementById('tabs-bar');
     bar.innerHTML = state.tabs.map(tab => `
-        <div class="tab ${state.activeTab === tab.id ? 'active' : ''}" onclick="openTab(${JSON.stringify(tab.id)}, ${JSON.stringify(tab.title)}, '${tab.type}')">
+        <div class="tab ${state.activeTab === tab.id ? 'active' : ''}" data-tab-id="${tab.id}" data-tab-type="${tab.type}" data-tab-title="${tab.title.replace(/"/g, '&quot;')}">
             <i class="ti ti-file-text"></i>
             <span>${String(tab.title).length > 20 ? String(tab.title).slice(0, 20) + '…' : tab.title}</span>
-            <span class="tab-close" onclick="closeTab(${JSON.stringify(tab.id)}, event)"><i class="ti ti-x"></i></span>
+            <span class="tab-close" data-close-id="${tab.id}"><i class="ti ti-x"></i></span>
         </div>
     `).join('');
+
+    bar.querySelectorAll('.tab').forEach(el => {
+        el.addEventListener('click', () => {
+            const id = el.dataset.tabId;
+            const type = el.dataset.tabType;
+            const title = el.dataset.tabTitle;
+            openTab(type === 'idea' ? parseInt(id) : id, title, type);
+        });
+    });
+
+    bar.querySelectorAll('.tab-close').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = el.dataset.closeId;
+            closeTab(isNaN(id) ? id : parseInt(id));
+        });
+    });
 }
+
 
 // Views
 async function loadIdeasView() {
