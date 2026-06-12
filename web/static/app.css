@@ -569,3 +569,49 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
     color: var(--text-tertiary);
     font-size: 14px;
 }
+
+.tags-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    min-height: 36px;
+}
+
+.tag-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--bg-hover);
+    border: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.tag-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    font-size: 14px;
+    padding: 0;
+    line-height: 1;
+}
+
+.tag-remove:hover { color: var(--danger); }
+
+#meta-tags {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    color: var(--text-primary);
+    min-width: 120px;
+    padding: 0;
+}

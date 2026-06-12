@@ -213,7 +213,12 @@ async function loadDetailView(id) {
             </div>
             <div class="meta-item" style="flex:1">
                 <label>Tags</label>
-                <input type="text" id="meta-tags" value="${(idea.tags || []).join(', ')}" placeholder="ki, business" onblur="saveMeta(${id})">
+                <div class="tags-input-row" id="tags-row">
+                    ${(idea.tags || []).map(t => `
+                        <span class="tag-pill">#${t} <button onclick="removeTag(${id}, '${t}')" class="tag-remove">×</button></span>
+                    `).join('')}
+                    <input type="text" id="meta-tags" placeholder="Tag hinzufügen..." onkeydown="addTagOnEnter(event, ${id})">
+                </div>
             </div>
         </div>
 
@@ -388,6 +393,38 @@ function renderSidebarIdeas() {
             <span style="overflow:hidden;text-overflow:ellipsis;">${idea.title}</span>
         </div>
     `).join('');
+}
+
+async function addTagOnEnter(event, id) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const input = document.getElementById('meta-tags');
+        const tag = input.value.trim().replace('#', '');
+        if (!tag) return;
+        input.value = '';
+        const idea = await api.getIdea(id);
+        const tags = [...(idea.tags || []), tag];
+        await api.saveMeta(id, {
+            tags,
+            status: document.getElementById('meta-status')?.value,
+            importance: parseInt(document.getElementById('meta-importance')?.value),
+            energy: document.getElementById('meta-energy')?.value
+        });
+        await loadDetailView(id);
+        document.getElementById('meta-tags')?.focus();
+    }
+}
+
+async function removeTag(id, tag) {
+    const idea = await api.getIdea(id);
+    const tags = (idea.tags || []).filter(t => t !== tag);
+    await api.saveMeta(id, {
+        tags,
+        status: document.getElementById('meta-status')?.value,
+        importance: parseInt(document.getElementById('meta-importance')?.value),
+        energy: document.getElementById('meta-energy')?.value
+    });
+    await loadDetailView(id);
 }
 
 // Nav
