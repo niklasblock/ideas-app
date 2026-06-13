@@ -174,5 +174,10 @@
             d.fx = null; d.fy = null;
         }
     </script>
+    <script>
+        if (new URLSearchParams(window.location.search).get('dark') === '1') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
 </body>
 </html>

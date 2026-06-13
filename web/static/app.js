@@ -317,10 +317,11 @@ function renderRecallSection(title, ideas, showRefresh = false) {
 }
 
 function loadGraphView() {
-    const content = document.getElementById('main-content');
-    content.style.padding = '0';
-    content.style.overflow = 'hidden';
-    content.innerHTML = `<iframe src="/graph" style="width:100%;height:100%;border:none;"></iframe>`;
+    const mainContent = document.getElementById('main-content');
+    mainContent.style.padding = '0';
+    mainContent.style.overflow = 'hidden';
+    const dark = state.darkMode ? '?dark=1' : '';
+    mainContent.innerHTML = `<iframe src="/graph${dark}" style="width:100%;height:100%;border:none;"></iframe>`;
 }
 
 // Actions
@@ -390,9 +391,20 @@ function renderSidebarIdeas() {
         <div class="idea-sidebar-item ${state.activeTab === idea.id ? 'active' : ''}" data-id="${idea.id}"
              onclick="openIdeaTab(${idea.id}, '${idea.title.replace(/'/g, "\\'")}')">
             <i class="ti ti-file-text"></i>
-            <span style="overflow:hidden;text-overflow:ellipsis;">${idea.title}</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;flex:1;">${idea.title}</span>
+            <button class="sidebar-delete-btn" onclick="deleteSidebarIdea(${idea.id}, event)" title="Löschen">
+                <i class="ti ti-trash"></i>
+            </button>
         </div>
     `).join('');
+}
+
+async function deleteSidebarIdea(id, e) {
+    e.stopPropagation();
+    await api.deleteIdea(id);
+    state.tabs = state.tabs.filter(t => t.id !== id);
+    renderTabs();
+    await loadIdeasView();
 }
 
 async function addTagOnEnter(event, id) {
@@ -427,6 +439,28 @@ async function removeTag(id, tag) {
     await loadDetailView(id);
 }
 
+function renderSidebarIdeas() {
+    const list = document.getElementById('ideas-list');
+    list.innerHTML = state.ideas.map(idea => `
+        <div class="idea-sidebar-item ${state.activeTab === idea.id ? 'active' : ''}" data-id="${idea.id}"
+             onclick="openIdeaTab(${idea.id}, '${idea.title.replace(/'/g, "\\'")}')">
+            <i class="ti ti-file-text"></i>
+            <span style="overflow:hidden;text-overflow:ellipsis;flex:1;">${idea.title}</span>
+            <button class="sidebar-delete-btn" onclick="deleteSidebarIdea(${idea.id}, event)" title="Löschen">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+async function deleteSidebarIdea(id, e) {
+    e.stopPropagation();
+    await api.deleteIdea(id);
+    state.tabs = state.tabs.filter(t => t.id !== id);
+    renderTabs();
+    await loadIdeasView();
+}
+
 // Nav
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
@@ -450,6 +484,12 @@ document.getElementById('theme-btn').addEventListener('click', () => {
     state.darkMode = !state.darkMode;
     document.body.classList.toggle('dark', state.darkMode);
     document.getElementById('theme-btn').innerHTML = state.darkMode ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
+    
+    // Graph neu laden wenn aktiv
+    const activeTab = state.tabs.find(t => t.id === state.activeTab);
+    if (activeTab && activeTab.type === 'graph') {
+        loadGraphView();
+    }
 });
 
 // New Idea Modal

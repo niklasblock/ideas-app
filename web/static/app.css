@@ -615,3 +615,23 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
     min-width: 120px;
     padding: 0;
 }
+
+.sidebar-delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.idea-sidebar-item:hover .sidebar-delete-btn {
+    opacity: 1;
+}
+
+.sidebar-delete-btn:hover {
+    color: var(--danger);
+}
