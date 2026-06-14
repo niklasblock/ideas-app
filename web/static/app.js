@@ -439,9 +439,16 @@ async function removeTag(id, tag) {
     await loadDetailView(id);
 }
 
-function renderSidebarIdeas() {
+function searchIdeas(query) {
+    const q = query.toLowerCase().trim();
+    const filtered = q === '' ? state.ideas : state.ideas.filter(idea =>
+        idea.title.toLowerCase().includes(q) ||
+        (idea.tags || []).some(t => t.toLowerCase().includes(q)) ||
+        (idea.content || '').toLowerCase().includes(q)
+    );
+    
     const list = document.getElementById('ideas-list');
-    list.innerHTML = state.ideas.map(idea => `
+    list.innerHTML = filtered.map(idea => `
         <div class="idea-sidebar-item ${state.activeTab === idea.id ? 'active' : ''}" data-id="${idea.id}"
              onclick="openIdeaTab(${idea.id}, '${idea.title.replace(/'/g, "\\'")}')">
             <i class="ti ti-file-text"></i>
@@ -451,14 +458,6 @@ function renderSidebarIdeas() {
             </button>
         </div>
     `).join('');
-}
-
-async function deleteSidebarIdea(id, e) {
-    e.stopPropagation();
-    await api.deleteIdea(id);
-    state.tabs = state.tabs.filter(t => t.id !== id);
-    renderTabs();
-    await loadIdeasView();
 }
 
 // Nav
@@ -517,6 +516,18 @@ document.getElementById('modal-confirm').addEventListener('click', async () => {
 document.getElementById('new-idea-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('modal-confirm').click();
     if (e.key === 'Escape') document.getElementById('modal-cancel').click();
+});
+
+document.getElementById('search-btn').addEventListener('click', () => {
+    const searchBox = document.getElementById('sidebar-search');
+    const isHidden = searchBox.classList.toggle('hidden');
+    document.getElementById('search-btn').classList.toggle('active', !isHidden);
+    if (!isHidden) {
+        document.getElementById('search-input').focus();
+    } else {
+        document.getElementById('search-input').value = '';
+        searchIdeas('');
+    }
 });
 
 // Marked für Markdown

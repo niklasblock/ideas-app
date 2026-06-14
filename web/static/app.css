@@ -635,3 +635,29 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
 .sidebar-delete-btn:hover {
     color: var(--danger);
 }
+
+.sidebar-search {
+    padding: 0 12px 8px;
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+}
+
+.sidebar-search input:focus {
+    border-color: var(--accent);
+}
+
+.icon-btn.active {
+    background: var(--bg-active);
+    color: var(--text-primary);
+}
+
+.hidden { display: none; }
