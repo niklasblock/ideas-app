@@ -31,8 +31,9 @@
             dominant-baseline: middle;
         }
         .link {
-            stroke-opacity: 0.4;
-            stroke-width: 1.5px;
+            stroke: #888;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
         }
         .tooltip {
             position: absolute;
@@ -147,6 +148,10 @@
                 .attr("x2", d => d.target.x)
                 .attr("y2", d => d.target.y);
             node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+        
+        simulation.on("end", () => {
+            console.log('link positions:', edges.map(e => ({x1: e.source.x, y1: e.source.y, x2: e.target.x, y2: e.target.y})));
         });
 
         setTimeout(() => {
