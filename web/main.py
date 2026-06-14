@@ -3,6 +3,7 @@ from core.ideas import (add_idea, list_ideas, delete_idea, get_idea, update_idea
                         update_idea_meta, get_backlinks, add_link, remove_link,
                         get_unseen_ideas, get_random_idea, get_unlinked_ideas, track_view)
 from core.similarity import get_similar_ideas
+from datetime import datetime
 
 app = Flask(__name__, template_folder="templates")
 
@@ -77,6 +78,19 @@ def api_export_md(idea_id):
         mimetype="text/markdown",
         headers={"Content-Disposition": f"attachment; filename=idee-{idea_id}.md"}
     )
+
+@app.route("/api/ideas/<int:idea_id>/title", methods=["POST"])
+def api_save_title(idea_id):
+    data = request.json
+    ideas = list_ideas()
+    for idea in ideas:
+        if idea["id"] == idea_id:
+            idea["title"] = data["title"]
+            idea["time"]["updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+            break
+    from core.storage import save_ideas
+    save_ideas(ideas)
+    return jsonify({"ok": True})
 
 @app.route("/api/recall")
 def api_recall():

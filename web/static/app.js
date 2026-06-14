@@ -185,7 +185,7 @@ async function loadDetailView(id) {
     const allIdeas = state.ideas.filter(i => i.id !== id);  // diese Zeile fehlt
     mainContent.innerHTML = `
         <div class="detail-header">
-            <h1 class="detail-title">${idea.title}</h1>
+            <h1 class="detail-title" onclick="editTitle(${id})" title="Klicken zum Umbenennen">${idea.title}</h1>
             <p class="detail-date">${idea.time?.created || ''} · zuletzt gesehen ${idea.time?.last_viewed || ''}</p>
             <div class="tags-row">
                 ${(idea.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}
@@ -465,6 +465,36 @@ function searchIdeas(query) {
             </button>
         </div>
     `).join('');
+}
+
+function editTitle(id) {
+    const title = document.querySelector('.detail-title');
+    const current = title.textContent;
+    title.outerHTML = `<input id="title-edit" class="detail-title-input" value="${current}" 
+        onblur="saveTitle(${id}, this.value)"
+        onkeydown="if(event.key==='Enter') this.blur(); if(event.key==='Escape') cancelTitleEdit('${current}')">`;
+    document.getElementById('title-edit').select();
+}
+
+async function saveTitle(id, newTitle) {
+    if (!newTitle.trim()) return cancelTitleEdit('');
+    await fetch(`/api/ideas/${id}/title`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim() })
+    });
+    state.ideas = await api.getIdeas();
+    renderSidebarIdeas();
+    // Tab Titel aktualisieren
+    const tab = state.tabs.find(t => t.id === id);
+    if (tab) tab.title = newTitle.trim();
+    renderTabs();
+    await loadDetailView(id);
+}
+
+function cancelTitleEdit(original) {
+    const input = document.getElementById('title-edit');
+    if (input) input.outerHTML = `<h1 class="detail-title" onclick="editTitle(${original})">${original}</h1>`;
 }
 
 // Nav

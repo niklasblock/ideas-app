@@ -678,3 +678,23 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
     font-size: 12px;
     outline: none;
 }
+
+.detail-title {
+    cursor: pointer;
+}
+
+.detail-title:hover {
+    opacity: 0.7;
+}
+
+.detail-title-input {
+    font-size: 24px;
+    font-weight: 500;
+    border: none;
+    border-bottom: 2px solid var(--accent);
+    background: transparent;
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    margin-bottom: 6px;
+}
