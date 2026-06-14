@@ -29,6 +29,21 @@
 
             <div class="sidebar-search hidden" id="sidebar-search">
                 <input type="text" id="search-input" placeholder="Suchen..." oninput="searchIdeas(this.value)">
+                <div class="filter-row">
+                    <select id="filter-status" onchange="searchIdeas(document.getElementById('search-input').value)">
+                        <option value="">Alle Status</option>
+                        <option value="raw">raw</option>
+                        <option value="refined">refined</option>
+                        <option value="applied">applied</option>
+                        <option value="archived">archived</option>
+                    </select>
+                    <select id="filter-energy" onchange="searchIdeas(document.getElementById('search-input').value)">
+                        <option value="">Alle Energie</option>
+                        <option value="low">low</option>
+                        <option value="medium">medium</option>
+                        <option value="high">high</option>
+                    </select>
+                </div>
             </div>
 
             <nav class="sidebar-nav">

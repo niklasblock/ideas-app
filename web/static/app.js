@@ -441,12 +441,19 @@ async function removeTag(id, tag) {
 
 function searchIdeas(query) {
     const q = query.toLowerCase().trim();
-    const filtered = q === '' ? state.ideas : state.ideas.filter(idea =>
-        idea.title.toLowerCase().includes(q) ||
-        (idea.tags || []).some(t => t.toLowerCase().includes(q)) ||
-        (idea.content || '').toLowerCase().includes(q)
-    );
-    
+    const status = document.getElementById('filter-status')?.value || '';
+    const energy = document.getElementById('filter-energy')?.value || '';
+
+    const filtered = state.ideas.filter(idea => {
+        const matchQuery = q === '' ||
+            idea.title.toLowerCase().includes(q) ||
+            (idea.tags || []).some(t => t.toLowerCase().includes(q)) ||
+            (idea.content || '').toLowerCase().includes(q);
+        const matchStatus = status === '' || idea.context?.status === status;
+        const matchEnergy = energy === '' || idea.context?.energy === energy;
+        return matchQuery && matchStatus && matchEnergy;
+    });
+
     const list = document.getElementById('ideas-list');
     list.innerHTML = filtered.map(idea => `
         <div class="idea-sidebar-item ${state.activeTab === idea.id ? 'active' : ''}" data-id="${idea.id}"

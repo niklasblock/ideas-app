@@ -661,3 +661,20 @@ body.dark .status-archived { background: #3d1f10; color: #f0997b; }
 }
 
 .hidden { display: none; }
+
+.filter-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.filter-row select {
+    flex: 1;
+    padding: 5px 8px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 12px;
+    outline: none;
+}
