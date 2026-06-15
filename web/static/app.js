@@ -78,6 +78,7 @@ function openTab(id, title, type = 'idea') {
     else if (type === 'ideas') loadIdeasView();
     else if (type === 'recall') loadRecallView();
     else if (type === 'graph') loadGraphView();
+    else if (type === 'settings') loadSettingsView();
 }
 
 function closeTab(id) {
@@ -497,6 +498,95 @@ function cancelTitleEdit(original) {
     if (input) input.outerHTML = `<h1 class="detail-title" onclick="editTitle(${original})">${original}</h1>`;
 }
 
+// Einstellungen beim Start laden
+fetch('/api/settings').then(r => r.json()).then(settings => {
+    if (settings.dark_mode) {
+        state.darkMode = true;
+        document.body.classList.add('dark');
+        document.getElementById('theme-btn').innerHTML = '<i class="ti ti-sun"></i>';
+    }
+});
+
+async function loadSettingsView() {
+    document.getElementById('main-content').style.padding = '';
+    document.getElementById('main-content').style.overflow = '';
+    const settings = await fetch('/api/settings').then(r => r.json());
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <h1 style="font-size:22px; font-weight:500; margin-bottom:24px;">Einstellungen</h1>
+
+        <div class="settings-section">
+            <h2>Darstellung</h2>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span>Dark Mode als Standard</span>
+                    <p>App startet immer im Dark Mode</p>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="s-dark-mode" ${settings.dark_mode ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Recall</h2>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span>Tage bis "lange nicht gesehen"</span>
+                    <p>Ideen die länger nicht angeschaut wurden erscheinen im Recall</p>
+                </div>
+                <input type="number" id="s-recall-days" value="${settings.recall_days}" min="1" max="365" style="width:70px;">
+            </div>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span>Anzahl ähnliche Ideen</span>
+                    <p>Wie viele ähnliche Ideen in der Detailansicht angezeigt werden</p>
+                </div>
+                <input type="number" id="s-similar-count" value="${settings.similar_count}" min="1" max="20" style="width:70px;">
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Daten</h2>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span>Pfad zur ideas.json</span>
+                    <p>Z.B. iCloud Drive Pfad für automatischen Sync</p>
+                </div>
+                <input type="text" id="s-ideas-path" value="${settings.ideas_path || ''}" placeholder="Standard (data/ideas.json)" style="width:280px;">
+            </div>
+        </div>
+
+        <div style="margin-top:24px;">
+            <button class="btn-primary" onclick="saveSettings()">Speichern</button>
+        </div>
+    `;
+}
+
+async function saveSettings() {
+    const settings = {
+        dark_mode: document.getElementById('s-dark-mode').checked,
+        recall_days: parseInt(document.getElementById('s-recall-days').value),
+        similar_count: parseInt(document.getElementById('s-similar-count').value),
+        ideas_path: document.getElementById('s-ideas-path').value.trim() || null
+    };
+    await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+    });
+
+    // Dark Mode sofort anwenden
+    state.darkMode = settings.dark_mode;
+    document.body.classList.toggle('dark', state.darkMode);
+    document.getElementById('theme-btn').innerHTML = state.darkMode ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
+
+    const btn = document.querySelector('.btn-primary');
+    btn.textContent = '✓ Gespeichert';
+    setTimeout(() => btn.textContent = 'Speichern', 2000);
+}
+
 // Nav
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
@@ -511,6 +601,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
             openTab('recall', 'Recall', 'recall');
         } else if (view === 'graph') {
             openTab('graph', 'Graph', 'graph');
+        } else if (view === 'settings') {
+            openTab('settings', 'Einstellungen', 'settings');
         }
     });
 });

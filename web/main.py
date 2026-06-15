@@ -3,6 +3,7 @@ from core.ideas import (add_idea, list_ideas, delete_idea, get_idea, update_idea
                         update_idea_meta, get_backlinks, add_link, remove_link,
                         get_unseen_ideas, get_random_idea, get_unlinked_ideas, track_view)
 from core.similarity import get_similar_ideas
+from core.settings import load_settings, save_settings, update_setting
 from datetime import datetime
 
 app = Flask(__name__, template_folder="templates")
@@ -67,7 +68,8 @@ def api_unlink(idea_id):
 
 @app.route("/api/ideas/<int:idea_id>/similar")
 def api_similar(idea_id):
-    return jsonify(get_similar_ideas(idea_id))
+    settings = load_settings()
+    return jsonify(get_similar_ideas(idea_id, top=settings.get("similar_count", 5)))
 
 @app.route("/api/ideas/<int:idea_id>/export/md")
 def api_export_md(idea_id):
@@ -94,8 +96,9 @@ def api_save_title(idea_id):
 
 @app.route("/api/recall")
 def api_recall():
+    settings = load_settings()
     return jsonify({
-        "unseen": get_unseen_ideas(days=7),
+        "unseen": get_unseen_ideas(days=settings.get("recall_days", 7)),
         "unlinked": get_unlinked_ideas(),
         "random": get_random_idea()
     })
@@ -110,6 +113,16 @@ def graph():
             for to_id in ids:
                 edges.append({"source": idea["id"], "target": to_id, "type": link_type})
     return render_template("graph.html", nodes=nodes, edges=edges)
+
+@app.route("/api/settings", methods=["GET"])
+def api_get_settings():
+    return jsonify(load_settings())
+
+@app.route("/api/settings", methods=["POST"])
+def api_save_settings():
+    data = request.json
+    save_settings(data)
+    return jsonify({"ok": True})
 
 def main():
     app.run(debug=True)
