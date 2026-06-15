@@ -6,6 +6,7 @@
     <title>Second Brain</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
 </head>
 <body>
     <div class="app">
@@ -13,7 +14,10 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <span class="sidebar-title">Second Brain</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="{{ url_for('static', filename='logo.svg') }}" width="24" height="24">
+                    <span class="sidebar-title">Second Brain</span>
+                </div>
                 <div class="sidebar-actions">
                     <button class="icon-btn" id="search-btn" title="Suchen"><i class="ti ti-search"></i></button>
                     <button class="icon-btn" id="theme-btn" title="Theme"><i class="ti ti-moon"></i></button>
