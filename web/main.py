@@ -5,6 +5,7 @@ from core.ideas import (add_idea, list_ideas, delete_idea, get_idea, update_idea
 from core.similarity import get_similar_ideas
 from core.settings import load_settings, save_settings, update_setting
 from datetime import datetime
+import os 
 
 app = Flask(__name__, template_folder="templates")
 
@@ -120,8 +121,23 @@ def api_get_settings():
 
 @app.route("/api/settings", methods=["POST"])
 def api_save_settings():
+    from core.storage import get_ideas_path, load_ideas, save_ideas
+    import shutil
+    
     data = request.json
+    old_path = get_ideas_path()
+    
+    # Einstellungen speichern
     save_settings(data)
+    
+    # Migration wenn Pfad geändert wurde
+    new_path = data.get("ideas_path")
+    if new_path and new_path != old_path and os.path.exists(old_path):
+        os.makedirs(os.path.dirname(new_path), exist_ok=True)
+        # Nur migrieren wenn neue Datei leer oder nicht existiert
+        if not os.path.exists(new_path) or os.path.getsize(new_path) == 0:
+            shutil.copy2(old_path, new_path)
+    
     return jsonify({"ok": True})
 
 def main():
